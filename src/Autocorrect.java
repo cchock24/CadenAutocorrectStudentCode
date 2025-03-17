@@ -2,6 +2,11 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Objects;
+
+import static java.util.Arrays.sort;
 
 /**
  * Autocorrect
@@ -34,24 +39,23 @@ public class Autocorrect {
     public int editDistance(String a, String b){
         int[][] saved = new int[a.length()+1][b.length()+1];
         //Base Case
-        for(int i = 0 ; i < a.length(); i++){
-            saved[0][i] = i;
-        }
-        for(int i = 0; i < b.length(); i++){
+        for(int i = 0 ; i < a.length()+1; i++){
             saved[i][0] = i;
+        }
+        for(int i = 0; i < b.length()+1; i++){
+            saved[0][i] = i;
         }
         for(int i = 1; i < a.length()+1; i++){
             for(int j = 1; j < b.length()+1; j++){
-                if(a.charAt(i) == b.charAt(j)){
+                if(a.charAt(i-1) == b.charAt(j-1)){
                     saved[i][j] = saved[i-1][j-1];
                 }
                 else{
-                    int temp = Math.min(saved[i-1][j-1],saved[i-1][j]);
-                    saved[i][j] = Math.min(temp, saved[i][j-1]);
+                    saved[i][j] = Math.min((saved[i][j-1]),(Math.min(saved[i-1][j-1],saved[i-1][j]))) +1;
                 }
             }
         }
-        return 0;
+        return saved[a.length()][b.length()];
     }
 
 
@@ -64,13 +68,27 @@ public class Autocorrect {
     public String[] runTest(String typed) {
         // Make Array Arraylist to hold Possible Suggestions
         ArrayList<String>[] words = new ArrayList[threshold];
+        int newLength = 0;
+        for(int i = 0; i < threshold; i++){
+            words[i] = new ArrayList<String>();
+        }
         for(int i = 0; i < dictionary.length; i++){
             int edit = editDistance(dictionary[i], typed);
             if(edit <= threshold){
-                words[edit].add(dictionary[i]);
+                words[edit - 1].add(dictionary[i]);
+                newLength++;
             }
         }
-        return new String[0];
+        String[] list = new String[newLength];
+        int i = 0;
+        for(ArrayList<String> l: words){
+            Collections.sort(l);
+            while(!l.isEmpty()){
+                list[i] = l.remove(0);
+                i++;
+            }
+        }
+        return list;
     }
 
 
