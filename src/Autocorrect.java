@@ -20,6 +20,7 @@ public class Autocorrect {
     String[] dctionary;
     int threshold;
     String[] dictionary;
+    ArrayList<String>[] table;
     /**
      * Constucts an instance of the Autocorrect class.
      * @param words The dictionary of acceptable words.
@@ -32,8 +33,28 @@ public class Autocorrect {
         // Hash Key Pair
 
         //Hash Table 28^2. 26 Letters + dash and apostrophe
-        ArrayList<Integer>[] table = new ArrayList[784];
+        table = new ArrayList[784];
 
+    }
+
+    public String[] Candidates(String[] dictionary, int threshold, String typo){
+        // Fill up Table with Words at the right spots
+        for(int i = 0; i < dictionary.length; i++){
+            for(int j = 0; j < dictionary[i].length() -1; j++){
+                table[Hash(dictionary[i].substring(j,j+1))].add(dictionary[i]);
+            }
+        }
+
+        return;
+    }
+
+    public int Hash(String segment){
+        int hash = 0;
+        // 256 is Length of Extended ASCII
+        for(int i = 0; i < segment.length(); i++){
+            hash = (256 * hash + segment.charAt(i));
+        }
+        return hash;
     }
 
     public int editDistance(String a, String b){
@@ -72,10 +93,11 @@ public class Autocorrect {
         for(int i = 0; i < threshold; i++){
             words[i] = new ArrayList<String>();
         }
-        for(int i = 0; i < dictionary.length; i++){
-            int edit = editDistance(dictionary[i], typed);
+        String[] candidates = Candidates(dictionary, threshold, typed);
+        for(int i = 0; i < candidates.length; i++){
+            int edit = editDistance(candidates[i], typed);
             if(edit <= threshold){
-                words[edit - 1].add(dictionary[i]);
+                words[edit - 1].add(candidates[i]);
                 newLength++;
             }
         }
