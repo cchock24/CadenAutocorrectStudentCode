@@ -1,10 +1,7 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Objects;
+import java.util.*;
 
 import static java.util.Arrays.sort;
 
@@ -17,6 +14,9 @@ import static java.util.Arrays.sort;
  * @author Caden Chock
  */
 public class Autocorrect {
+    // Half Extended ACII * ASCII z + ASCII z;
+    public static final int MAX_HASH = 15739;
+    public static final int HALF_ASCII = 128;
     String[] dctionary;
     int threshold;
     String[] dictionary;
@@ -33,26 +33,36 @@ public class Autocorrect {
         // Hash Key Pair
 
         //Hash Table 28^2. 26 Letters + dash and apostrophe
-        table = new ArrayList[784];
+        table = new ArrayList[MAX_HASH];
+        for(int i = 0; i < MAX_HASH; i++){
+            table[i] = new ArrayList<String>();
+        }
 
     }
 
     public String[] Candidates(String[] dictionary, int threshold, String typo){
+        HashSet<String> can = new HashSet<String>();
+
         // Fill up Table with Words at the right spots
         for(int i = 0; i < dictionary.length; i++){
             for(int j = 0; j < dictionary[i].length() -1; j++){
-                table[Hash(dictionary[i].substring(j,j+1))].add(dictionary[i]);
+                table[Hash(dictionary[i].substring(j,j+2))].add(dictionary[i]);
             }
         }
-
-        return;
+        // Get Hash of the mistyped word
+        for(int i = 0; i < typo.length()-1; i++){
+            can.addAll(table[Hash(typo.substring(i,i+2))]);
+        }
+        String[] candidates = new String[can.size()];
+        candidates = can.toArray(candidates);
+        return candidates;
     }
 
     public int Hash(String segment){
         int hash = 0;
         // 256 is Length of Extended ASCII
         for(int i = 0; i < segment.length(); i++){
-            hash = (256 * hash + segment.charAt(i));
+            hash = (HALF_ASCII * hash + segment.charAt(i));
         }
         return hash;
     }
