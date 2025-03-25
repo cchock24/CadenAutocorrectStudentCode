@@ -14,6 +14,7 @@ import static java.util.Arrays.sort;
  * @author Caden Chock
  */
 public class Autocorrect {
+    private static Scanner s;
     // Half Extended ACII * ASCII z + ASCII z;
     public static final int MAX_HASH = 15739;
     public static final int HALF_ASCII = 128;
@@ -60,7 +61,7 @@ public class Autocorrect {
 
     public int Hash(String segment){
         int hash = 0;
-        // 256 is Length of Extended ASCII
+        // 128 is Length of Extended ASCII
         for(int i = 0; i < segment.length(); i++){
             hash = (HALF_ASCII * hash + segment.charAt(i));
         }
@@ -106,6 +107,10 @@ public class Autocorrect {
         String[] candidates = Candidates(dictionary, threshold, typed);
         for(int i = 0; i < candidates.length; i++){
             int edit = editDistance(candidates[i], typed);
+            if(edit == 0){
+                String[] right = {"0"};
+                return right;
+            }
             if(edit <= threshold){
                 words[edit - 1].add(candidates[i]);
                 newLength++;
@@ -147,6 +152,32 @@ public class Autocorrect {
         }
         catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    // Terminal Stuff
+    public static void main(String[] args) {
+        s = new Scanner(System.in);
+        System.out.println("Enter a word:");
+        String typed = s.nextLine();
+        System.out.printf("Enter a threshold: ");
+        int threshold = s.nextInt();
+        s.nextLine();
+        System.out.println("You typed: " + typed);
+        String[] dictionary = loadDictionary("large");
+        Autocorrect auto = new Autocorrect(dictionary, threshold);
+        String[] solutions = auto.runTest(typed);
+        if(solutions.length == 0){
+            System.out.println("No matches found.");
+            System.exit(1);
+        }
+        if(solutions[0].equals("0")){
+            System.out.println("That is a real word.");
+            System.exit(1);
+        }
+        System.out.println("Did you mean...");
+        for(int i = 0; i < solutions.length; i++){
+            System.out.println(solutions[i]);
         }
     }
 }

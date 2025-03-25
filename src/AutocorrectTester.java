@@ -1,6 +1,7 @@
 import org.junit.Test;
 import org.junit.jupiter.api.Timeout;
 import java.io.*;
+import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -35,6 +36,7 @@ public class AutocorrectTester {
         studentSolution = new Autocorrect(dictionary, threshold);
         assertArrayEquals(matches, studentSolution.runTest(typed), "Incorrect words returned.");
     }
+
 
     private void setTestData(int test) {
         // Open files
