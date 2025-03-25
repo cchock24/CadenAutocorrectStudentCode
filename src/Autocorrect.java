@@ -30,9 +30,6 @@ public class Autocorrect {
     public Autocorrect(String[] words, int threshold) {
         dictionary = words;
        this.threshold = threshold;
-        // Make Trie of Dictionary
-        // Hash Key Pair
-
         //Hash Table 28^2. 26 Letters + dash and apostrophe
         table = new ArrayList[MAX_HASH];
         for(int i = 0; i < MAX_HASH; i++){
@@ -51,9 +48,11 @@ public class Autocorrect {
             }
         }
         // Get Hash of the mistyped word
+        // Add corresponding hash arrays to a single list
         for(int i = 0; i < typo.length()-1; i++){
             can.addAll(table[Hash(typo.substring(i,i+2))]);
         }
+        //Turn list into an array
         String[] candidates = new String[can.size()];
         candidates = can.toArray(candidates);
         return candidates;
@@ -62,6 +61,7 @@ public class Autocorrect {
     public int Hash(String segment){
         int hash = 0;
         // 128 is Length of Extended ASCII
+        // Horner's Method
         for(int i = 0; i < segment.length(); i++){
             hash = (HALF_ASCII * hash + segment.charAt(i));
         }
@@ -104,10 +104,13 @@ public class Autocorrect {
         for(int i = 0; i < threshold; i++){
             words[i] = new ArrayList<String>();
         }
+        // Get Candidates
         String[] candidates = Candidates(dictionary, threshold, typed);
+        // Get Edit Distance of Candidates
         for(int i = 0; i < candidates.length; i++){
             int edit = editDistance(candidates[i], typed);
             if(edit == 0){
+                // If typed word is a real word return special symbol
                 String[] right = {"0"};
                 return right;
             }
@@ -167,10 +170,12 @@ public class Autocorrect {
         String[] dictionary = loadDictionary("large");
         Autocorrect auto = new Autocorrect(dictionary, threshold);
         String[] solutions = auto.runTest(typed);
+        // If word has no matches
         if(solutions.length == 0){
             System.out.println("No matches found.");
             System.exit(1);
         }
+        // if word is a real word
         if(solutions[0].equals("0")){
             System.out.println("That is a real word.");
             System.exit(1);
